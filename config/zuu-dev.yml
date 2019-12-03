@@ -1,38 +1,42 @@
-spring: 
-  cloud:
-    config:
-      discovery:
-        enabled: true
-        service-id: config-server
-      name: zuul
-      profile: dev
-    rabbitmq:
+spring:
+  application:
+    name: zuul
+    
+server:
+  port: 3001
+  rabbitmq:
     host: 192.168.64.5
     port: 5672
     username: admin
-    password: admin   
+    password: admin
 eureka:
   client:
     service-url:
       defaultZone: http://eureka1:2001/eureka, http://eureka2:2002/eureka
----
-spring:
-  profiles: eureka1
 
-server:
-  port: 2001
+#zuul:
+#  routes:
+#    item-service: /item-service/**
+ #   user-service: /user-service/**
+#    order-service: /order-service/**
+
+zuul:
+  retryable: true
+ribbon:
+  ConnectTimeout: 1000
+  ReadTimeout: 2000
+  MaxAutoRetriesNextServer: 1
+  MaxAutoRetries: 1
   
-# eureka1 Ïò eureka2 ×¢²á
-eureka:
-  instance:
-    hostname: eureka1
-  client:
-    service-url: 
-      defaultZone: http://eureka2:2002/eureka
-
----
-spring:
-  profiles: eureka2
-
-server:
-  port: 2002
+hystrix:
+  command:
+    default:
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 500
+management:
+  endpoints:
+    web:
+      exposure:
+        include: hystrix.stream
